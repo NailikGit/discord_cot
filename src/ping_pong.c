@@ -95,8 +95,8 @@ int main(int argc, char * argv[]) {
   discord_set_on_command(client, "ping", &on_ping);
   discord_set_on_command(client, "pong", &on_pong);
 
-  print_usage();
-  fgetc(stdin);
+  /* print_usage(); */
+  /* fgetc(stdin); */
 
   discord_run(client);
 
