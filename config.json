@@ -12,9 +12,7 @@
     "disable_modules": ["WEBSOCKETS", "USER_AGENT"]
   },
   "discord": {
-    "token": {
-      $ref: './token'
-    },
+    "token": "YOUR_BOT_TOKEN",
     "default_prefix": {
       "enable": false,
       "prefix": ">"
