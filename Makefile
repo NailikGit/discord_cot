@@ -1,4 +1,4 @@
-CFLAGS := -g -DCCORD_SIGINTCATCH -pthread -ldiscord -lcurl -fsanitize=address
+CFLAGS := -g -DCCORD_SIGINTCATCH -pthread -ldiscord -lcurl #-fsanitize=address
 
 all: ping_pong
 
