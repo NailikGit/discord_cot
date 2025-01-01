@@ -13,8 +13,8 @@
   },
   "discord": {
     "token": {
-      $ref: './token',
-    }
+      $ref: './token'
+    },
     "default_prefix": {
       "enable": false,
       "prefix": ">"
