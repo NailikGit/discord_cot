@@ -1,3 +1,4 @@
+#include <concord/discord_codecs.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -36,18 +37,46 @@ void on_pong(struct discord* client, const struct discord_message* event) {
 }
 
 void on_slash_command_create(struct discord* client, const struct discord_message* event) {
-  struct discord_application_command_option options[] = {{
-    .type = DISCORD_APPLICATION_OPTION_STRING,
-    .name = "person",
-    .description = "person to make to a nutte",
-    .required = true}};
+  struct discord_application_command_option sub_user[] = {
+    { .type = DISCORD_APPLICATION_OPTION_USER,
+      .name = "user",
+      .description = "user to make to a nutte" },
+    { .type = DISCORD_APPLICATION_OPTION_STRING,
+      .name = "reason",
+      .description = "reason why person/role is a nutte"
+    }
+  };
+  struct discord_application_command_option sub_role[] = {
+    { .type = DISCORD_APPLICATION_OPTION_ROLE,
+      .name = "role",
+      .description = "role to make to a nutte" },
+    { .type = DISCORD_APPLICATION_OPTION_STRING,
+      .name = "reason",
+      .description = "reason why person/role is a nutte"
+    }
+  };
+
+  struct discord_application_command_option options[] = {
+    { .type = DISCORD_APPLICATION_OPTION_SUB_COMMAND,
+      .name = "role",
+      .description = "role to make to a nutte",
+      .options = &(struct discord_application_command_options){.size = 2, .array = sub_role}},
+    { .type = DISCORD_APPLICATION_OPTION_SUB_COMMAND,
+      .name = "user",
+      .description = "user to make to a nutte",
+      .options = &(struct discord_application_command_options){.size = 2, .array = sub_user}
+    }
+  };
+
   struct discord_create_guild_application_command params[] = {
-    {.name = "ping", .description = "simple ping-pong command"},
-    {.name = "nutte",
-     .description = "makes someone a nutte",
-     .options = &(struct discord_application_command_options) {
-       .size = 1,
-       .array = options}}
+    { .name = "ping", .description = "simple ping-pong command" },
+    { .name = "nutte",
+      .description = "makes someone a nutte",
+      .options = &(struct discord_application_command_options) {
+        .size = 2,
+        .array = options
+      }
+    }
   };
 
   for(int i = 0; i < 2; i++) {
@@ -67,7 +96,29 @@ void on_interaction(struct discord* client, const struct discord_interaction* ev
     if(!event->data->options) return;
     params.type = DISCORD_INTERACTION_CHANNEL_MESSAGE_WITH_SOURCE;
     char buf[DISCORD_MAX_MESSAGE_LEN];
-    snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "%s ist eine nutte", event->data->options->array[0].value);
+
+    /* printf("\n"); */
+    /* printf("%s\n", event->data->name); */
+    /* printf("%s, %s\n", event->data->options->array[0].name, event->data->options->array[0].options->array[0].value); */
+    /* printf("%s\n", event->data->options->array[0].options->array[1].value); */
+    /* printf("\n\n"); */
+
+    if(strcmp(event->data->options->array[0].name, "user") == 0) {
+      if(event->data->options->array[0].options->realsize == 1)
+        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@%s> ist eine nutte", event->data->options->array[0].options->array[0].value);
+      else
+        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@%s> ist eine nutte, %s",
+                                               event->data->options->array[0].options->array[0].value,
+                                               event->data->options->array[0].options->array[1].value);
+    } else {
+      if(event->data->options->array[0].options->realsize == 1)
+        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@&%s> sind nutten", event->data->options->array[0].options->array[0].value);
+      else
+        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@&%s> sind nutten, %s",
+                                               event->data->options->array[0].options->array[0].value,
+                                               event->data->options->array[0].options->array[1].value);
+    }
+
     params.data = &(struct discord_interaction_callback_data) {.content = buf};
   }
   discord_create_interaction_response(client, event->id, event->token, &params, NULL);
