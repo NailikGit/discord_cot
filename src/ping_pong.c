@@ -126,17 +126,18 @@ void on_interaction(struct discord* client, const struct discord_interaction* ev
 int main(int argc, char * argv[]) {
   const char* config_file;
   if(argc > 1) config_file = argv[1];
-  else config_file = "../config.json";
+  else config_file = "config.json";
 
+  system("pwd");
   char command1[512];
-  sprintf(command1, "../replace.sh %s", config_file);
+  sprintf(command1, "scripts/replace.sh %s", config_file);
   system(command1);
 
   ccord_global_init();
   struct discord* client = discord_config_init(config_file);
 
   char command2[512];
-  sprintf(command2, "../remove.sh %s", config_file);
+  sprintf(command2, "scripts/remove.sh %s", config_file);
   system(command2);
 
   discord_set_on_command(client, "slash_create", &on_slash_command_create);

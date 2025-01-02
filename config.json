@@ -1,13 +1,13 @@
 {
   "logging": {
     "level": "trace",
-    "filename": "bot.log",
+    "filename": "build/bot.log",
     "quiet": false,
     "overwrite": true,
     "use_color": true,
     "http": {
       "enable": true,
-      "filename": "http.log"
+      "filename": "build/http.log"
     },
     "disable_modules": ["WEBSOCKETS", "USER_AGENT"]
   },
