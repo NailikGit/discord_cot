@@ -7,15 +7,8 @@
 
 u64snowflake g_app_id;
 
-void print_usage() {
-  printf("\n\nThis bot demonstrates a simple ping-pong response.\n"
-         "1. Type 'pong' in chat\n"
-         "2. Tpye 'ping' in chat\n"
-         "\nTYPE ANY KEY TO START BOT\n");
-}
-
 void on_ready(struct discord* client, const struct discord_ready* event) {
-  log_info("ping_pong_bot succesfully connected to Discord as %s#%s!",
+  log_info("nutte succesfully connected to Discord as %s#%s!",
            event->user->username, event->user->discriminator);
 
   g_app_id = event->application->id;
@@ -25,6 +18,7 @@ void on_ping(struct discord* client, const struct discord_message* event) {
   if(event->author->bot) return;
 
   struct discord_create_message params = {.content = "pong"};
+  log_info("function on_ping sending message '%s'", params.content);
   discord_create_message(client, event->channel_id, &params, NULL);
 }
 
@@ -32,6 +26,7 @@ void on_pong(struct discord* client, const struct discord_message* event) {
   if(event->author->bot) return;
 
   struct discord_create_message params = {.content = "ping"};
+  log_info("function on_pong sending message '%s'", params.content);
   discord_create_message(client, event->channel_id, &params, NULL);
 }
 
@@ -79,47 +74,52 @@ void on_slash_command_create(struct discord* client, const struct discord_messag
   };
 
   for(int i = 0; i < 2; i++) {
+    log_info("creating slash command '%s'", params[i].name);
     discord_create_guild_application_command(client, g_app_id, event->guild_id, &params[i], NULL);
   }
 }
 
 void on_interaction(struct discord* client, const struct discord_interaction* event) {
-  if(event->type != DISCORD_INTERACTION_APPLICATION_COMMAND) return;
-  if(!event->data) return;
+  if(!event->data || event->type != DISCORD_INTERACTION_APPLICATION_COMMAND) {
+    log_info("invalid slash command");
+    return;
+  }
 
   struct discord_interaction_response params;
   if(strcmp(event->data->name, "ping") == 0) {
     params.type = DISCORD_INTERACTION_CHANNEL_MESSAGE_WITH_SOURCE;
     params.data = &(struct discord_interaction_callback_data) {.content = "pong"};
   } else if(strcmp(event->data->name, "nutte") == 0) {
-    if(!event->data->options) return;
+    if(!event->data->options) {
+      log_info("invalid slash command");
+      return;
+    }
     params.type = DISCORD_INTERACTION_CHANNEL_MESSAGE_WITH_SOURCE;
     char buf[DISCORD_MAX_MESSAGE_LEN];
 
-    /* printf("\n"); */
-    /* printf("%s\n", event->data->name); */
-    /* printf("%s, %s\n", event->data->options->array[0].name, event->data->options->array[0].options->array[0].value); */
-    /* printf("%s\n", event->data->options->array[0].options->array[1].value); */
-    /* printf("\n\n"); */
-
     if(strcmp(event->data->options->array[0].name, "user") == 0) {
       if(event->data->options->array[0].options->realsize == 1)
-        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@%s> ist eine nutte", event->data->options->array[0].options->array[0].value);
+        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@%s> ist eine nutte",
+                 event->data->options->array[0].options->array[0].value);
       else
         snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@%s> ist eine nutte, %s",
-                                               event->data->options->array[0].options->array[0].value,
-                                               event->data->options->array[0].options->array[1].value);
+                 event->data->options->array[0].options->array[0].value,
+                 event->data->options->array[0].options->array[1].value);
     } else {
       if(event->data->options->array[0].options->realsize == 1)
-        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@&%s> sind nutten", event->data->options->array[0].options->array[0].value);
+        snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@&%s> sind nutten",
+                 event->data->options->array[0].options->array[0].value);
       else
         snprintf(buf, DISCORD_MAX_MESSAGE_LEN, "<@&%s> sind nutten, %s",
-                                               event->data->options->array[0].options->array[0].value,
-                                               event->data->options->array[0].options->array[1].value);
+                 event->data->options->array[0].options->array[0].value,
+                 event->data->options->array[0].options->array[1].value);
     }
 
     params.data = &(struct discord_interaction_callback_data) {.content = buf};
   }
+
+  log_info("sending '%s' as response to slash command by '%s'",
+           params.data->content, event->user->id);
   discord_create_interaction_response(client, event->id, event->token, &params, NULL);
 }
 
@@ -146,13 +146,12 @@ int main(int argc, char * argv[]) {
   discord_set_on_command(client, "ping", &on_ping);
   discord_set_on_command(client, "pong", &on_pong);
 
-  /* print_usage(); */
-  /* fgetc(stdin); */
-
   discord_run(client);
 
   discord_cleanup(client);
   ccord_global_cleanup();
+
+  log_info("nutte closed successfully");
 
   return 0;
 }
