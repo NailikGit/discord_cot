@@ -20,9 +20,11 @@ int main(int argc, char** argv) {
     nob_cmd_append(&cmd, "src/nutte.c", "-o", "build/nutte");
     nob_cmd_append(&cmd, "-g", "-Wall", "-Wextra", "-DCCORD_SIGINTCATCH");
     nob_cmd_append(&cmd, "-pthread", "-ldiscord", "-lcurl");
+    nob_log(NOB_INFO, "building nutte...");
     if(!nob_cmd_run_sync(cmd)) return 1;
   } else if(strcmp(argv[0], "run") == 0) {
     nob_cmd_append(&cmd, "build/nutte");
+    nob_log(NOB_INFO, "starting nutte...");
     if(!nob_cmd_run_sync(cmd)) return 1;
   } else {
     nob_log(NOB_ERROR, "invalid command '%s'", argv[0]);
