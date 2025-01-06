@@ -34,7 +34,8 @@ void on_slash_command_create(struct discord* client, const struct discord_messag
   struct discord_application_command_option sub_user[] = {
     { .type = DISCORD_APPLICATION_OPTION_USER,
       .name = "user",
-      .description = "user to make to a nutte" },
+      .description = "user to make to a nutte",
+      .required = true},
     { .type = DISCORD_APPLICATION_OPTION_STRING,
       .name = "reason",
       .description = "reason why person/role is a nutte"
@@ -43,7 +44,8 @@ void on_slash_command_create(struct discord* client, const struct discord_messag
   struct discord_application_command_option sub_role[] = {
     { .type = DISCORD_APPLICATION_OPTION_ROLE,
       .name = "role",
-      .description = "role to make to a nutte" },
+      .description = "role to make to a nutte",
+      .required = true},
     { .type = DISCORD_APPLICATION_OPTION_STRING,
       .name = "reason",
       .description = "reason why person/role is a nutte"
@@ -118,8 +120,8 @@ void on_interaction(struct discord* client, const struct discord_interaction* ev
     params.data = &(struct discord_interaction_callback_data) {.content = buf};
   }
 
-  log_info("sending '%s' as response to slash command by '%s'",
-           params.data->content, event->user->id);
+  log_info("sending '%s' as response to slash command by '%lu'",
+           params.data->content, event->member->user->id);
   discord_create_interaction_response(client, event->id, event->token, &params, NULL);
 }
 
