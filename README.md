@@ -6,4 +6,5 @@ library
 run `clang nob.c -o nob`
 and then `./nob build`,
 
-to run the bot type `./nob run`.
+to run the bot create a file called "token" and put your bot token in there,
+then type `./nob run`.
