@@ -94,7 +94,7 @@ void on_slash_command_create(struct discord* client, const struct discord_messag
     }
   };
 
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < 3; i++) {
     log_info("creating slash command '%s'", params[i].name);
     discord_create_guild_application_command(client, g_app_id, event->guild_id, &params[i], NULL);
   }
