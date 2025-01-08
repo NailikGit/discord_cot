@@ -1,3 +1,4 @@
+#include <concord/discord_codecs.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -27,6 +28,23 @@ void on_pong(struct discord* client, const struct discord_message* event) {
 
   struct discord_create_message params = {.content = "ping"};
   log_info("function on_pong sending message '%s'", params.content);
+  discord_create_message(client, event->channel_id, &params, NULL);
+}
+
+void on_they_slash_them(struct discord* client, const struct discord_message* event) {
+  if(event->author->bot) return;
+
+  // event->message_reference->fail_if_not_exists = false;
+
+  struct discord_create_message params = {.content = "WOKE",
+                                          .message_reference = &(struct discord_message_reference){
+                                            .guild_id = event->guild_id,
+                                            .channel_id = event->channel_id,
+                                            .message_id = event->id,
+                                            .fail_if_not_exists = false
+                                          }};
+  log_info("function on_pong sending message '%s' as reply to user %lu",
+           params.content, event->author->id);
   discord_create_message(client, event->channel_id, &params, NULL);
 }
 
@@ -151,6 +169,7 @@ int main(int argc, char * argv[]) {
   discord_set_on_interaction_create(client, &on_interaction);
   discord_set_on_command(client, "ping", &on_ping);
   discord_set_on_command(client, "pong", &on_pong);
+  discord_set_on_command(client, "they_slash_them", &on_they_slash_them);
 
   discord_run(client);
 
