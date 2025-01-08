@@ -66,6 +66,7 @@ void on_slash_command_create(struct discord* client, const struct discord_messag
 
   struct discord_create_guild_application_command params[] = {
     { .name = "ping", .description = "simple ping-pong command" },
+    { .name = "pong", .description = "simple ping-pong command" },
     { .name = "nutte",
       .description = "makes someone a nutte",
       .options = &(struct discord_application_command_options) {
@@ -91,6 +92,9 @@ void on_interaction(struct discord* client, const struct discord_interaction* ev
   if(strcmp(event->data->name, "ping") == 0) {
     params.type = DISCORD_INTERACTION_CHANNEL_MESSAGE_WITH_SOURCE;
     params.data = &(struct discord_interaction_callback_data) {.content = "pong"};
+  } else if(strcmp(event->data->name, "pong") == 0) {
+    params.type = DISCORD_INTERACTION_CHANNEL_MESSAGE_WITH_SOURCE;
+    params.data = &(struct discord_interaction_callback_data) {.content = "ping"};
   } else if(strcmp(event->data->name, "nutte") == 0) {
     if(!event->data->options) {
       log_info("invalid slash command");
